@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ExperimentMeta, ExpCSummary, CostRow } from '@/types/experiment'
 import CostModelSection from './CostModelSection.vue'
@@ -13,7 +13,46 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const tab = ref<'A' | 'B' | 'C' | 'D'>('A')
+type TabId = 'A' | 'B' | 'C' | 'D'
+const tab = ref<TabId>('A')
+
+// Deep links like #expA/#expB/#expC/#expD live inside this tabbed section, so the
+// target only exists once its tab is active. Map the hash to a tab, switch to it,
+// then scroll the whole section into view (works even from another tab).
+const TABS: TabId[] = ['A', 'B', 'C', 'D']
+function syncFromHash() {
+  const m = /^#exp([ABCD])$/.exec(window.location.hash)
+  if (!m) return
+  const id = m[1] as TabId
+  if (TABS.includes(id)) {
+    tab.value = id
+    void nextTick(() => {
+      document.getElementById('experiments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+}
+
+// Direct request (hero "See results" button) — works even when the hash is
+// already #expC, where no hashchange would fire.
+function onSelectTab(e: Event) {
+  const id = (e as CustomEvent<TabId>).detail
+  if (TABS.includes(id)) {
+    tab.value = id
+    void nextTick(() => {
+      document.getElementById('experiments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+}
+
+onMounted(() => {
+  syncFromHash()
+  window.addEventListener('hashchange', syncFromHash)
+  window.addEventListener('isc:select-experiment', onSelectTab as EventListener)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('hashchange', syncFromHash)
+  window.removeEventListener('isc:select-experiment', onSelectTab as EventListener)
+})
 
 const byId = (id: string): ExperimentMeta =>
   props.experiments.find((e) => e.id === id) ?? props.experiments[0]

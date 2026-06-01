@@ -8,6 +8,13 @@ import MetricChip from './MetricChip.vue'
 const props = defineProps<{ summary: ExpCSummary | null }>()
 const { t } = useI18n()
 
+// Experiment C lives behind a tab in ExperimentsSection, so its #expC anchor only
+// exists when that tab is active. Ask the section to activate tab C and scroll —
+// reliable from any starting tab, and on repeat clicks.
+function seeResults() {
+  window.dispatchEvent(new CustomEvent('isc:select-experiment', { detail: 'C' }))
+}
+
 const chips = computed(() => {
   const s = props.summary
   return [
@@ -28,7 +35,7 @@ const chips = computed(() => {
       <MetricChip v-for="(c, i) in chips" :key="i" :value="c.value" :label="c.label" :accent="c.accent" />
     </div>
     <div class="cta">
-      <v-btn color="primary" href="#expC" variant="flat" class="px-5">{{ t('hero.seeResults') }}</v-btn>
+      <v-btn color="primary" variant="flat" class="px-5" @click="seeResults">{{ t('hero.seeResults') }}</v-btn>
       <v-btn :href="GITHUB_URL" target="_blank" variant="outlined" class="px-5">{{ t('hero.sourceGithub') }}</v-btn>
     </div>
   </section>
