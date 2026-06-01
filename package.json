@@ -1,0 +1,24 @@
+{
+  "name": "ekiden-isc-experiments",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive, reproducible experiments for Ingest-time Semantic Compilation (ISC). EKIDEN.ai-aligned stack.",
+  "packageManager": "yarn@4.5.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "packages/*",
+    "functions"
+  ],
+  "scripts": {
+    "dev": "yarn workspace @ekiden/isc-web dev",
+    "build": "yarn workspace @ekiden/isc-web build",
+    "lint": "yarn workspaces foreach -Apt run lint",
+    "test:unit": "yarn workspace @ekiden/isc-web test:unit",
+    "test:e2e": "yarn workspace @ekiden/isc-web test:e2e",
+    "build:functions": "yarn workspace @ekiden/isc-functions build",
+    "emulators": "firebase emulators:start",
+    "deploy": "yarn build && yarn build:functions && firebase deploy"
+  }
+}

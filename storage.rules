@@ -1,0 +1,7 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Experiment artifacts are public read-only; uploads via Admin SDK / seed script.
+    match /experiments/{file=**} { allow read: if true; allow write: if false; }
+  }
+}

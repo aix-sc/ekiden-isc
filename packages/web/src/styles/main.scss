@@ -1,0 +1,24 @@
+:root {
+  --paper: #FBFAF7; --ink: #16263B; --soft: #3A4A5C; --navy: #1F3A5F;
+  --teal: #117C6F; --red: #C0392B; --mute: #6B7280; --line: #E7E3DA; --p2: #F3F1EA; --ts: #E2F0ED;
+  --serif: 'Fraunces', Georgia, serif; --sans: 'Public Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+html, body, #app { background: var(--paper); }
+.v-application { font-family: var(--sans) !important; color: var(--ink); }
+.grid-bg {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px; background-position: -1px -1px;
+}
+.serif { font-family: var(--serif); }
+.mono  { font-family: var(--mono); }
+.kicker {
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--teal);
+}
+.sec-title {
+  font-family: var(--serif); font-weight: 600; color: var(--navy);
+  letter-spacing: -.01em; line-height: 1.08;
+}
+.fig-cap { font-size: .8rem; color: var(--mute); }

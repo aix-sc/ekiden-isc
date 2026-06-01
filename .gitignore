@@ -1,0 +1,23 @@
+node_modules/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+.pnp.*
+dist/
+lib/
+coverage/
+.firebase/
+.firebaserc
+*.local
+.env
+.DS_Store
+
+# Local Claude Code settings
+.claude/settings.local.json
+cypress/videos/
+cypress/screenshots/
+
+# TS composite build artifacts
+*.config.js
+*.config.d.ts
+*.tsbuildinfo

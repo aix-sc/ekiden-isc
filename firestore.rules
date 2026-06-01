@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    // Experiment metadata is public read-only; writes happen via Admin SDK / seed script.
+    match /experiments/{id} { allow read: if true; allow write: if false; }
+    // Anonymous question logs: create-only from clients, never readable by clients.
+    match /questions/{id} { allow create: if true; allow read, update, delete: if false; }
+  }
+}

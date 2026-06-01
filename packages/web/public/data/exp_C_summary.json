@@ -1,0 +1,39 @@
+{
+  "final_corpus_N": 9000,
+  "per_event_ms_full_final": 283.2,
+  "per_event_ms_incremental_final": 8.4,
+  "per_event_speedup_final_x": 33.7,
+  "cumulative_s_full": 10.04,
+  "cumulative_s_incremental": 0.422,
+  "cumulative_speedup_x": 23.8,
+  "max_principal_angle_deg_over_run": 0.0,
+  "min_recall@10_over_run": 1.0,
+  "mean_recall@10": 1.0,
+  "procrustes_virtual_axis_update": [
+    {
+      "anchors": 50,
+      "frac_reembedded": 0.0125,
+      "mean_cosine_to_true": 0.36
+    },
+    {
+      "anchors": 100,
+      "frac_reembedded": 0.025,
+      "mean_cosine_to_true": 0.5387
+    },
+    {
+      "anchors": 200,
+      "frac_reembedded": 0.05,
+      "mean_cosine_to_true": 0.7966
+    },
+    {
+      "anchors": 400,
+      "frac_reembedded": 0.1,
+      "mean_cosine_to_true": 0.9545
+    },
+    {
+      "anchors": 800,
+      "frac_reembedded": 0.2,
+      "mean_cosine_to_true": 0.9647
+    }
+  ]
+}

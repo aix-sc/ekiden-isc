@@ -1,0 +1,47 @@
+{
+  "name": "@ekiden/isc-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "cypress run",
+    "cypress:open": "cypress open"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.6",
+    "firebase": "^11.1.0",
+    "vue": "^3.5.13",
+    "vuetify": "^3.7.6"
+  },
+  "devDependencies": {
+    "@mdi/font": "^7.4.47",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.17.10",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/eslint-config-typescript": "^14.1.4",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.7.0",
+    "cypress": "^13.17.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-cypress": "^4.1.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "jiti": "^2.4.2",
+    "jsdom": "^25.0.1",
+    "sass": "^1.83.0",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.5",
+    "vite-plugin-vuetify": "^2.0.4",
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.1.10"
+  }
+}
