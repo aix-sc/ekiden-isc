@@ -10,6 +10,10 @@ const FAQ_JA: FaqItem[] = [
     a: '誰かが質問するたびに資料の意味を毎回考え直すのではなく、資料が入ってきた時に一度だけその作業をして、きれいに保存しておき、あとは引くだけにしよう、という話。',
   },
   {
+    q: 'ChatGPT、Claude、Gemini等のLLMに関して、この研究はどの様に貢献するの？ユーザーである自分にとっては、何が良くなるの？',
+    a: 'これらのアシスタントは今、多くが QSR を使う：質問のたびに元資料を読み直し、ゼロから意味を組み立て直す。この研究は、その意味の作業を最初に一度だけ行って保存しておく（ISC）話。あなたにとっての利点は：同じ資料に何度も質問するほど答えが速く安くなる（準備を使い回すため）；『それっぽいが間違い』の答えが減る（意味を毎回当て推量せず、一度準備して確認するため）；出どころが分かる（どの資料から来た事実かを示せる）；長い対話でも脱線しにくい；直しが楽 — 事実を一度直せば直ったまま、モデルが更新されても全部やり直さなくてよい。ChatGPT・Claude・Gemini はこれを補完的なモードとして採り入れ、重く反復的な資料処理を、より安く・確実に・監査可能にできる。',
+  },
+  {
     q: 'QSR（クエリ時意味再構成）って何？',
     a: '今のふつうのやり方。質問のたびに大きなAIが生の資料を読み直し、意味をゼロから組み立てる。質問1つのたびに全部の本を読み直す司書のようなもの。',
   },
@@ -71,6 +75,10 @@ const FAQ_EN: FaqItem[] = [
   {
     q: 'In one sentence, what is this paper about?',
     a: "Instead of re-deriving what documents mean every time someone asks a question, do that work once when a document arrives, store it cleanly, and afterward just look it up.",
+  },
+  {
+    q: 'How does this research contribute to LLMs like ChatGPT, Claude, and Gemini? As a user, what gets better for me?',
+    a: "These assistants mostly use QSR today: every time you ask, they re-read and re-understand the source documents from scratch. This research is about doing that understanding once, up front, and saving it (ISC). For you that can mean: faster and cheaper answers when you ask many questions about the same documents; fewer sounds-right-but-wrong answers, because the meaning was prepared and checked once instead of re-guessed each time; clearer provenance (you can see which source a fact came from); staying on-task in long chats; and easier fixes — correct a fact once and it stays fixed, and when the model is upgraded you don’t have to redo everything. ChatGPT, Claude, and Gemini could adopt this as a complementary mode to make heavy, repeated document work cheaper, more reliable, and more auditable.",
   },
   {
     q: 'What is QSR (query-time semantic reconstruction)?',
