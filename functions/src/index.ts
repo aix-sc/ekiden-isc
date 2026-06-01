@@ -14,7 +14,7 @@ interface ChatRequest { context?: string; history?: ChatTurn[]; question?: strin
 interface GeminiPart { text?: string }
 interface GeminiResponse {
   error?: { message?: string }
-  candidates?: { content?: { parts?: GeminiPart[] } }[]
+  candidates?: { content?: { parts?: GeminiPart[] }; finishReason?: string }[]
 }
 
 // Server-side Gemini proxy: keeps the API key in a Secret, never on the client.
@@ -34,7 +34,14 @@ export const geminiChat = onCall(
     const body = {
       systemInstruction: { parts: [{ text: String(context ?? '') }] },
       contents,
-      generationConfig: { temperature: 0.4, maxOutputTokens: 512 },
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: 1024,
+        // gemini-2.5-flash spends output tokens on internal "thinking" by default,
+        // which starved the visible answer (it hit MAX_TOKENS after ~18 tokens).
+        // Disable thinking — this Q&A use case doesn't need it.
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     }
 
     const res = await fetch(
@@ -44,8 +51,11 @@ export const geminiChat = onCall(
     const data = (await res.json()) as GeminiResponse
     if (data.error) throw new HttpsError('internal', data.error.message ?? 'Gemini API error')
 
-    const text =
-      data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') || '(no response)'
+    const candidate = data.candidates?.[0]
+    let text =
+      candidate?.content?.parts?.map((p) => p.text ?? '').join('') || '(no response)'
+    // Safety net: if the answer was still cut off by the token cap, mark it.
+    if (candidate?.finishReason === 'MAX_TOKENS') text += ' […]'
 
     await getFirestore()
       .collection('questions')
