@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useExperiments } from '@/composables/useExperiments'
 import { GITHUB_URL } from '@/data/experiments'
 import type { ExperimentMeta } from '@/types/experiment'
@@ -11,6 +12,7 @@ import MaintenanceSection from '@/components/MaintenanceSection.vue'
 import NextRunSection from '@/components/NextRunSection.vue'
 import ChatDock from '@/components/ChatDock.vue'
 
+const { t } = useI18n()
 const { experiments, summary, costRows } = useExperiments()
 const byId = (id: string): ExperimentMeta =>
   experiments.value.find((e) => e.id === id) ?? experiments.value[0]
@@ -33,16 +35,16 @@ const metaNext = computed(() => byId('NEXT'))
       <footer class="foot">
         <div class="foot-inner">
           <div>
-            <p class="foot-title serif">Ingest-time Semantic Compilation</p>
-            <p class="foot-sub">Kyle Wild · Yusuke Takahashi · <span class="mono">Try not to make it better. Try to make a difference.</span></p>
+            <p class="foot-title serif">{{ t('footer.title') }}</p>
+            <p class="foot-sub">{{ t('footer.authors') }}<span class="mono">{{ t('footer.motto') }}</span></p>
           </div>
           <div class="foot-links">
-            <a :href="GITHUB_URL" target="_blank" rel="noopener">GitHub (OSS) ↗</a>
-            <a href="https://www.cidrdb.org/cidr2027/" target="_blank" rel="noopener">CIDR 2027 ↗</a>
-            <a href="#top">Back to top ↑</a>
+            <a :href="GITHUB_URL" target="_blank" rel="noopener">{{ t('footer.github') }}</a>
+            <a href="https://www.cidrdb.org/cidr2027/" target="_blank" rel="noopener">{{ t('footer.cidr') }}</a>
+            <a href="#top">{{ t('footer.backToTop') }}</a>
           </div>
         </div>
-        <p class="foot-fine">Open source under the MIT license. Experiment figures are synthetic-data pilots of the harness; the real-corpus run is the next step.</p>
+        <p class="foot-fine">{{ t('footer.fine') }}</p>
       </footer>
     </v-main>
     <ChatDock :experiments="experiments" :summary="summary" />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { ChartConfiguration } from 'chart.js'
 import type { ExperimentMeta } from '@/types/experiment'
 import { useCostModel } from '@/composables/useCostModel'
@@ -8,24 +9,26 @@ import BaseChart from './BaseChart.vue'
 import ExperimentMeta_ from './ExperimentMeta.vue'
 
 defineProps<{ meta: ExperimentMeta }>()
+const { t } = useI18n()
 const { state, rStar, amortisedRatio, curves } = useCostModel()
 
 // log-scale sliders for the large/small magnitudes; linear for the per-query costs
-const logCtrls = [
-  { key: 'N', label: 'corpus size N', min: 4, max: 7, desc: 'items' },
-  { key: 'W', label: 'changes / period W', min: 2, max: 6, desc: 'changes' },
-  { key: 'cc', label: 'compile cost c_c', min: -5, max: -2, desc: '$/item' },
-  { key: 'cm', label: 'maintenance c_m', min: -5, max: -2, desc: '$/change' },
-] as const
-const linCtrls = [
-  { key: 'cq', label: 'reconstruct c_q', min: 0.005, max: 0.2, step: 0.005, desc: '$/query' },
-  { key: 'cr', label: 'traverse c_r', min: 0.0005, max: 0.02, step: 0.0005, desc: '$/query' },
-] as const
+const logCtrls = computed(() => [
+  { key: 'N', label: t('cost.ctrls.N'), min: 4, max: 7, desc: t('cost.units.items') },
+  { key: 'W', label: t('cost.ctrls.W'), min: 2, max: 6, desc: t('cost.units.changes') },
+  { key: 'cc', label: t('cost.ctrls.cc'), min: -5, max: -2, desc: t('cost.units.perItem') },
+  { key: 'cm', label: t('cost.ctrls.cm'), min: -5, max: -2, desc: t('cost.units.perChange') },
+] as const)
+const linCtrls = computed(() => [
+  { key: 'cq', label: t('cost.ctrls.cq'), min: 0.005, max: 0.2, step: 0.005, desc: t('cost.units.perQuery') },
+  { key: 'cr', label: t('cost.ctrls.cr'), min: 0.0005, max: 0.02, step: 0.0005, desc: t('cost.units.perQuery') },
+] as const)
 
-function logVal(key: (typeof logCtrls)[number]['key']) {
+type LogKey = 'N' | 'W' | 'cc' | 'cm'
+function logVal(key: LogKey) {
   return Math.log10(state[key])
 }
-function setLog(key: (typeof logCtrls)[number]['key'], v: number) {
+function setLog(key: LogKey, v: number) {
   state[key] = Math.pow(10, v)
 }
 const fmtSci = (x: number) => x.toExponential(1)
@@ -37,18 +40,18 @@ const chartConfig = computed<ChartConfiguration>(() => ({
   data: {
     labels: curves.value.labels,
     datasets: [
-      { label: 'QSR = R·c_q', data: curves.value.qsr, borderColor: C.red, borderWidth: 2.4, pointRadius: 0, tension: 0.05 },
-      { label: 'ISC = N·c_c + W·c_m + R·c_r', data: curves.value.isc, borderColor: C.teal, borderWidth: 2.4, pointRadius: 0, tension: 0.05 },
+      { label: t('cost.series.qsr'), data: curves.value.qsr, borderColor: C.red, borderWidth: 2.4, pointRadius: 0, tension: 0.05 },
+      { label: t('cost.series.isc'), data: curves.value.isc, borderColor: C.teal, borderWidth: 2.4, pointRadius: 0, tension: 0.05 },
     ],
   },
-  options: baseOptions('cumulative reads R', 'total cost ($)'),
+  options: baseOptions(t('cost.axes.x'), t('cost.axes.y')),
 }))
 </script>
 
 <template>
   <section id="expA" class="block">
-    <p class="kicker">02 · Experiment A — interactive</p>
-    <h2 class="sec-title text-h5 mb-4">Cost model &amp; break-even R*</h2>
+    <p class="kicker">{{ t('cost.kicker') }}</p>
+    <h2 class="sec-title text-h5 mb-4">{{ t('cost.title') }}</h2>
     <ExperimentMeta_ :meta="meta" />
     <v-card class="pa-5">
       <v-row dense>
@@ -66,14 +69,12 @@ const chartConfig = computed<ChartConfiguration>(() => ({
       </v-row>
 
       <div class="readout">
-        <div class="big"><span class="rl">break-even R*</span><span class="rv">{{ fmtInt(rStar) }}</span></div>
-        <div class="rs">Above R* reads ISC wins. Once amortised, ISC ≈ ${{ state.cr }}/query — about
-          {{ amortisedRatio }}× below QSR's ${{ state.cq }}/query.</div>
+        <div class="big"><span class="rl">{{ t('cost.breakEven') }}</span><span class="rv">{{ fmtInt(rStar) }}</span></div>
+        <div class="rs">{{ t('cost.readout', { cr: state.cr, cq: state.cq, ratio: amortisedRatio }) }}</div>
       </div>
 
       <BaseChart :config="chartConfig" :height="300" />
-      <p class="fig-cap mt-3">Drag the sliders to set your own cost constants — the curves and R* recompute live.
-        This is the cost model from §4 of the paper, runnable in your browser.</p>
+      <p class="fig-cap mt-3">{{ t('cost.caption') }}</p>
     </v-card>
   </section>
 </template>

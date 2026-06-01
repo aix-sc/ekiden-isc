@@ -1,37 +1,35 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { GITHUB_URL } from '@/data/experiments'
 import type { ExpCSummary } from '@/types/experiment'
 import MetricChip from './MetricChip.vue'
 
 const props = defineProps<{ summary: ExpCSummary | null }>()
+const { t } = useI18n()
 
 const chips = computed(() => {
   const s = props.summary
   return [
-    { value: s ? `${s.per_event_speedup_final_x}×` : '—', label: 'cheaper / update', accent: true },
-    { value: s ? `${s.cumulative_speedup_x}×` : '—', label: 'cheaper cumulative', accent: false },
-    { value: s ? `${s.max_principal_angle_deg_over_run}°` : '—', label: 'subspace drift', accent: true },
-    { value: '0.95', label: 'recovered @ ~10%', accent: false },
+    { value: s ? `${s.per_event_speedup_final_x}×` : '—', label: t('hero.chips.cheaperUpdate'), accent: true },
+    { value: s ? `${s.cumulative_speedup_x}×` : '—', label: t('hero.chips.cheaperCumulative'), accent: false },
+    { value: s ? `${s.max_principal_angle_deg_over_run}°` : '—', label: t('hero.chips.subspaceDrift'), accent: true },
+    { value: '0.95', label: t('hero.chips.recovered'), accent: false },
   ]
 })
 </script>
 
 <template>
   <section id="top" class="hero grid-bg">
-    <p class="kicker">Reproducible research · Wild–Takahashi · target venue CIDR 2027</p>
-    <h1 class="serif">Pay semantic labour <em>once.</em><br />Then just look it up.</h1>
-    <p class="lede">
-      An interactive companion to the ISC paper. Re-run the cost model, explore the
-      incremental-maintenance results, inspect the data behind every number, and ask questions
-      in plain language. Everything here is open source.
-    </p>
+    <p class="kicker">{{ t('hero.kicker') }}</p>
+    <h1 class="serif" v-html="t('hero.titleHtml')" />
+    <p class="lede">{{ t('hero.lede') }}</p>
     <div class="chips">
       <MetricChip v-for="(c, i) in chips" :key="i" :value="c.value" :label="c.label" :accent="c.accent" />
     </div>
     <div class="cta">
-      <v-btn color="primary" href="#expC" variant="flat" class="px-5">See the results</v-btn>
-      <v-btn :href="GITHUB_URL" target="_blank" variant="outlined" class="px-5">Source on GitHub</v-btn>
+      <v-btn color="primary" href="#expC" variant="flat" class="px-5">{{ t('hero.seeResults') }}</v-btn>
+      <v-btn :href="GITHUB_URL" target="_blank" variant="outlined" class="px-5">{{ t('hero.sourceGithub') }}</v-btn>
     </div>
   </section>
 </template>

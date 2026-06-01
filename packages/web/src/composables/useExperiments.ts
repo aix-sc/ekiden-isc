@@ -1,16 +1,24 @@
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { collection, getDocs } from 'firebase/firestore'
 import { db, firebaseEnabled } from '@/services/firebase'
-import { EXPERIMENTS } from '@/data/experiments'
+import { getExperiments } from '@/data/experiments'
+import { useLocale } from '@/composables/useLocale'
 import type { ExperimentMeta, ExpCSummary, CostRow } from '@/types/experiment'
 
 const ORDER = ['A', 'C', 'NEXT']
 
 export function useExperiments() {
-  const experiments = ref<ExperimentMeta[]>(EXPERIMENTS)
+  const { current } = useLocale()
+  const experiments = ref<ExperimentMeta[]>(getExperiments(current.value))
   const summary = ref<ExpCSummary | null>(null)
   const costRows = ref<CostRow[]>([])
   const source = ref<'firestore' | 'local'>('local')
+
+  // Re-pick the localized fallback whenever the locale changes (unless Firestore
+  // is the active source — its docs aren't localized here).
+  watch(current, (loc) => {
+    if (source.value === 'local') experiments.value = getExperiments(loc)
+  })
 
   async function loadMeta() {
     if (!firebaseEnabled || !db) return

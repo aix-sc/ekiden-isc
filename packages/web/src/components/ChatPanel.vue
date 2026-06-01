@@ -1,27 +1,33 @@
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { ExperimentMeta, ExpCSummary } from '@/types/experiment'
 import { askGemini, buildContext, type ChatTurn } from '@/services/gemini'
 import { firebaseEnabled } from '@/services/firebase'
+import { useLocale } from '@/composables/useLocale'
 import GeminiStar from '@/components/GeminiStar.vue'
 
 const props = defineProps<{ experiments: ExperimentMeta[]; summary: ExpCSummary | null }>()
 defineEmits<{ close: [] }>()
+const { t, tm } = useI18n()
+const { current } = useLocale()
 
-interface Msg { who: 'user' | 'bot'; text: string }
+interface Msg { who: 'user' | 'bot'; text: string; greeting?: boolean }
 const messages = ref<Msg[]>([
-  { who: 'bot', text: 'Hi — I can answer questions about these ISC experiments. Try: “Why is incremental maintenance cheaper as the corpus grows?”' },
+  { who: 'bot', text: t('chat.greeting'), greeting: true },
 ])
 const input = ref('')
 const busy = ref(false)
 const history: ChatTurn[] = []
 const log = ref<HTMLElement | null>(null)
-const suggestions = [
-  'What does R* mean and how is it computed?',
-  'Why is incremental maintenance cheaper as the corpus grows?',
-  'What is the virtual axis update?',
-  'How does ISC differ from RAG?',
-]
+const suggestions = computed<string[]>(() => tm('chat.suggestions') as string[])
+
+// Keep the initial greeting in sync with the active language (until the user chats).
+watch(current, () => {
+  if (messages.value.length === 1 && messages.value[0].greeting) {
+    messages.value[0].text = t('chat.greeting')
+  }
+})
 
 async function scrollToEnd() {
   await nextTick()
@@ -36,7 +42,7 @@ async function send(text: string) {
   input.value = ''
   busy.value = true
   try {
-    const context = buildContext(props.experiments, props.summary)
+    const context = buildContext(props.experiments, props.summary, current.value)
     const answer = await askGemini(context, history, q)
     history.push({ role: 'user', text: q })
     history.push({ role: 'model', text: answer })
@@ -55,22 +61,21 @@ async function send(text: string) {
       <div class="title">
         <span class="ico"><GeminiStar /></span>
         <div>
-          <p class="kicker mb-0">Ask the data</p>
-          <p class="name">Chat with the results</p>
+          <p class="kicker mb-0">{{ t('chat.kicker') }}</p>
+          <p class="name">{{ t('chat.name') }}</p>
         </div>
       </div>
-      <v-btn icon="mdi-close" variant="text" size="small" class="close" aria-label="Close chat"
+      <v-btn icon="mdi-close" variant="text" size="small" class="close" :aria-label="t('chat.close')"
              @click="$emit('close')" />
     </header>
 
     <v-alert v-if="!firebaseEnabled" type="info" variant="tonal" class="ma-3" density="comfortable">
-      Configure Firebase (<code>.env</code>) and deploy the <code>geminiChat</code> function — or run
-      <code>firebase emulators:start</code> — to enable the chat.
+      {{ t('chat.notConfigured') }}
     </v-alert>
 
     <div ref="log" class="log">
       <div v-for="(m, i) in messages" :key="i" class="msg" :class="`msg-${m.who}`">{{ m.text }}</div>
-      <div v-if="busy" class="msg msg-bot typing">thinking…</div>
+      <div v-if="busy" class="msg msg-bot typing">{{ t('chat.thinking') }}</div>
     </div>
 
     <div class="sug">
@@ -78,9 +83,9 @@ async function send(text: string) {
     </div>
 
     <div class="input">
-      <v-text-field v-model="input" placeholder="Ask about the results…" density="compact" hide-details
+      <v-text-field v-model="input" :placeholder="t('chat.placeholder')" density="compact" hide-details
                     variant="outlined" :disabled="busy" @keyup.enter="send(input)" />
-      <v-btn color="primary" :loading="busy" icon="mdi-send" aria-label="Send" @click="send(input)" />
+      <v-btn color="primary" :loading="busy" icon="mdi-send" :aria-label="t('chat.send')" @click="send(input)" />
     </div>
   </div>
 </template>

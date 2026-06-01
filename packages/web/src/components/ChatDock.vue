@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
+import { useI18n } from 'vue-i18n'
 import type { ExperimentMeta, ExpCSummary } from '@/types/experiment'
 import ChatPanel from '@/components/ChatPanel.vue'
 import GeminiStar from '@/components/GeminiStar.vue'
 
 defineProps<{ experiments: ExperimentMeta[]; summary: ExpCSummary | null }>()
+const { t } = useI18n()
 
 // mdAndUp (>=960px) → persistent right rail; below → FAB + popup dialog.
 // Matches the right-padding media query reserved on <v-main> in App.vue.
@@ -21,7 +23,7 @@ const open = ref(false)
 
   <!-- Mobile/tablet: floating Gemini-star button that opens a popup -->
   <template v-else>
-    <button v-show="!open" class="fab" aria-label="Open AI chat" @click="open = true">
+    <button v-show="!open" class="fab" :aria-label="t('chat.open')" @click="open = true">
       <span class="fab-star"><GeminiStar /></span>
     </button>
 

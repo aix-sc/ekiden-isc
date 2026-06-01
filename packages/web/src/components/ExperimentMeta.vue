@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { ExperimentMeta } from '@/types/experiment'
 defineProps<{ meta: ExperimentMeta }>()
+const { t } = useI18n()
 </script>
 
 <template>
   <v-row class="meta-grid" dense>
-    <v-col cols="12" md="4"><div class="m"><h4>Purpose</h4><p>{{ meta.purpose }}</p></div></v-col>
-    <v-col cols="12" md="4"><div class="m"><h4>Data source</h4><p>{{ meta.data }}</p></div></v-col>
-    <v-col cols="12" md="4"><div class="m"><h4>Evaluation</h4><p>{{ meta.evaluation }}</p></div></v-col>
+    <v-col cols="12" md="4"><div class="m"><h4>{{ t('meta.purpose') }}</h4><p>{{ meta.purpose }}</p></div></v-col>
+    <v-col cols="12" md="4"><div class="m"><h4>{{ t('meta.data') }}</h4><p>{{ meta.data }}</p></div></v-col>
+    <v-col cols="12" md="4"><div class="m"><h4>{{ t('meta.evaluation') }}</h4><p>{{ meta.evaluation }}</p></div></v-col>
   </v-row>
 </template>
 

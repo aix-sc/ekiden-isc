@@ -1,31 +1,32 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+</script>
 
 <template>
   <section id="overview" class="block">
-    <p class="kicker">01 · The idea</p>
-    <h2 class="sec-title text-h5 mb-4">QSR re-derives meaning every query. ISC compiles it once.</h2>
+    <p class="kicker">{{ t('overview.kicker') }}</p>
+    <h2 class="sec-title text-h5 mb-4">{{ t('overview.title') }}</h2>
     <v-row dense>
       <v-col cols="12" md="6">
         <v-card class="pa-4 pole pole-qsr" height="100%">
-          <h3>QSR — query-time semantic reconstruction</h3>
-          <p>Today's default. Every question makes a frontier model re-read raw passages and rebuild
-          the meaning from scratch. Flexible, but the bill is paid <em>on every read</em>.</p>
-          <p class="note">cost ∝ read volume</p>
+          <h3>{{ t('overview.qsrHead') }}</h3>
+          <p v-html="t('overview.qsrBodyHtml')" />
+          <p class="note">{{ t('overview.qsrNote') }}</p>
         </v-card>
       </v-col>
       <v-col cols="12" md="6">
         <v-card class="pa-4 pole pole-isc" height="100%">
-          <h3>ISC — ingest-time semantic compilation</h3>
-          <p>Do the meaning-work once at ingest into a persistent, typed, queryable substrate;
-          maintain it incrementally; traverse it cheaply thereafter.</p>
-          <p class="note">cost ∝ corpus change, not reads</p>
+          <h3>{{ t('overview.iscHead') }}</h3>
+          <p>{{ t('overview.iscBody') }}</p>
+          <p class="note">{{ t('overview.iscNote') }}</p>
         </v-card>
       </v-col>
     </v-row>
     <div class="eqbar">
-      <span class="eql">break-even read frequency</span>
+      <span class="eql">{{ t('overview.eqLabel') }}</span>
       <span class="eqf">R* = ( N·c<sub>c</sub> + W·c<sub>m</sub> ) / ( c<sub>q</sub> − c<sub>r</sub> )</span>
-      <span class="eqn">Above R* reads, compiling pays off.</span>
+      <span class="eqn">{{ t('overview.eqNote') }}</span>
     </div>
   </section>
 </template>
