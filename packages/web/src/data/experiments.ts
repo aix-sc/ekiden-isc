@@ -2,7 +2,7 @@ import type { ExperimentMeta } from '@/types/experiment'
 import type { Locale } from '@/i18n'
 
 // Public OSS repository:
-export const GITHUB_URL = 'https://github.com/aix-sc/ekiden-isc'
+export const GITHUB_URL = 'https://github.com/aix-sc/isc'
 
 // Local source of truth — also used as a fallback when Firestore is empty/offline.
 const EXPERIMENTS_EN: ExperimentMeta[] = [
@@ -16,6 +16,19 @@ const EXPERIMENTS_EN: ExperimentMeta[] = [
       'No external data — a parametric model. The calculator computes total cost for QSR and ISC across cumulative reads R for any constants. For a measured study, plug in real c_c/c_m/c_q/c_r from running real QSR and ISC pipelines on a corpus.',
     evaluation:
       'Read off the crossing point of the two cost curves as R*, and ISC’s amortised per-query cost as reads grow (it tends to the traversal cost c_r, while QSR stays fixed at c_q).',
+  },
+  {
+    id: 'Aprime',
+    name: 'Experiment A′ — measured cost model on a real corpus',
+    status: 'planned (real-corpus measurement of A)',
+    purpose:
+      'The measured counterpart of Experiment A: implement both a QSR (query-time reconstruction = RAG) and an ISC (ingest-time compilation) pipeline end-to-end on a single real corpus, then plug the measured c_c/c_m/c_q/c_r back into the model and read off a measured R*. It turns the “illustrative” constants of the interactive calculator into evidence on real data.',
+    data:
+      'A real corpus (a Wikipedia subset) embedded via an embedding API; both pipelines run end-to-end so the four cost constants are measured rather than assumed.',
+    evaluation:
+      'Cost vs. cumulative reads with the crossing point as the measured R*; per-item compile/maintenance cost and per-query reconstruct/traverse cost (c_c/c_m/c_q/c_r), plus latency.',
+    outcomes:
+      'A measured R* on real data validating the closed form R* = (N·c_c + W·c_m)/(c_q − c_r) — promoting the cost claim from “illustrative” to empirically demonstrated.',
   },
   {
     id: 'B',
@@ -55,6 +68,32 @@ const EXPERIMENTS_EN: ExperimentMeta[] = [
       'Evidence that ISC offers materially better attribution accuracy and verifiable deletion/governance than QSR — the “non-economic” column of the value case, supporting adoption arguments where compliance, not just cost, matters.',
   },
   {
+    id: 'E',
+    name: 'Experiment E — virtual axis update (i): corpus-driven incremental axis adaptation',
+    status: 'planned (description only)',
+    purpose:
+      'Within a single embedding model, build an orthogonalised low-rank geometric substrate by SVD, then on each batch of new documents compare full re-SVD (the rip-and-replace baseline) against Brand-style incremental rank-one updates. The cleanest demonstration that maintenance can track the subspace at low cost.',
+    data:
+      'A corpus embedded via an embedding API, fed as batches of new documents (an update stream); API access plus numpy/scipy only.',
+    evaluation:
+      'Principal-angle drift between the incremental and full-re-SVD subspaces, retrieval quality (recall@k, nDCG), and compute cost/latency per update.',
+    outcomes:
+      'Evidence that incremental rank-one updates stay close to the full-re-SVD subspace while costing far less — lifting the maintenance-term result from “recognised” to “demonstrated”.',
+  },
+  {
+    id: 'F',
+    name: 'Experiment F — virtual axis update (ii): virtualising a model-generation change (Procrustes)',
+    status: 'planned (description only)',
+    purpose:
+      'Providers’ real models cannot be updated, but two real spaces over the same corpus exist (e.g. gemini-embedding-001 vs. Gemini Embedding 2, ada-002 vs. text-embedding-3). Embed only a small anchor set in both spaces, learn an orthogonal Procrustes alignment, and map the remaining N items without re-embedding — a “virtual axis update” that avoids the rip-and-replace full re-embed a generation change normally forces.',
+    data:
+      'A small anchor set embedded in both embedding spaces over the same corpus; the rest of the corpus mapped via the learned alignment rather than re-embedded.',
+    evaluation:
+      'Quality of mapped vs. freshly embedded vectors, the anchor count k required, and the cost saved. Cross-model alignment is lossy and works best between same-provider generations; a partial success (“re-embed a few % to recover X% of quality”) is still a strong result.',
+    outcomes:
+      'A quantified trade-off showing how much quality a small-anchor Procrustes map recovers for how little re-embedding — evidence for absorbing a model-generation change without rip-and-replace.',
+  },
+  {
     id: 'NEXT',
     name: 'Next — real-corpus run',
     status: 'planned (the next step)',
@@ -78,6 +117,19 @@ const EXPERIMENTS_JA: ExperimentMeta[] = [
       '外部データなし — パラメトリックなモデルです。電卓は任意の定数について、累積読み取り R にわたる QSR と ISC の総コストを計算します。測定研究では、実際の QSR/ISC パイプラインをコーパスで走らせて得た本物の c_c/c_m/c_q/c_r を入力します。',
     evaluation:
       '2本のコスト曲線の交点を R* として読み取り、読み取りが増えるにつれての ISC の償却後クエリ単価を確認します（走査コスト c_r に近づく一方、QSR は c_q で一定のままです）。',
+  },
+  {
+    id: 'Aprime',
+    name: '実験A′ — 実コーパスで測定したコストモデル',
+    status: '計画中（実験A の実コーパス測定）',
+    purpose:
+      '実験A の測定版です。QSR（問い合わせ時再構築 = RAG）と ISC（取込時コンパイル）の両パイプラインを、単一の実コーパス上でエンドツーエンドに実装し、測定した c_c/c_m/c_q/c_r をモデルに戻して測定された R* を読み取ります。インタラクティブ電卓の「説明用」定数を、実データ上の証拠へと変えます。',
+    data:
+      '実コーパス（Wikipedia の一部）を埋め込みAPIで埋め込み、両パイプラインをエンドツーエンドで実行して、4つのコスト定数を仮定ではなく測定します。',
+    evaluation:
+      '累積読み取りに対するコストと、その交点としての測定された R*。アイテム単位のコンパイル/保守コスト、クエリ単位の再構築/走査コスト（c_c/c_m/c_q/c_r）、およびレイテンシ。',
+    outcomes:
+      '閉形式 R* = (N·c_c + W·c_m)/(c_q − c_r) を検証する、実データ上の測定された R*。コストの主張を「説明用」から「実証済み」へ引き上げます。',
   },
   {
     id: 'B',
@@ -115,6 +167,32 @@ const EXPERIMENTS_JA: ExperimentMeta[] = [
       'D1: 来歴/帰属の精度（各回答を正しい出典までたどれるか?）。削除伝播の正確さとレイテンシ。時間経過にわたる回答の監査可能性。',
     outcomes:
       'ISC が QSR よりも明確に高い帰属精度と検証可能な削除/ガバナンスを提供するという証拠。価値提案の「非経済的」な側面であり、コストだけでなくコンプライアンスが重要な場面での採用論拠を支えます。',
+  },
+  {
+    id: 'E',
+    name: '実験E — 仮想軸更新 (i): コーパス駆動の増分軸適応',
+    status: '計画中（説明のみ）',
+    purpose:
+      '単一の埋め込みモデル内で、SVD により直交化された低ランクの幾何的基盤を構築し、新規文書のバッチごとに完全再SVD（rip-and-replace のベースライン）と Brand 型の増分ランク1更新を比較します。保守が低コストで部分空間を追従できることの最もクリーンな実証です。',
+    data:
+      '埋め込みAPIで埋め込んだコーパスを、新規文書のバッチ（更新ストリーム）として与えます。必要なのは API アクセスと numpy/scipy のみです。',
+    evaluation:
+      '増分と完全再SVD の部分空間間の主角ドリフト、検索品質（recall@k, nDCG）、更新ごとの計算コスト/レイテンシ。',
+    outcomes:
+      '増分ランク1更新が完全再SVD の部分空間に近いまま、はるかに低コストで済むことの証拠。保守項の結果を「認識済み」から「実証済み」へ引き上げます。',
+  },
+  {
+    id: 'F',
+    name: '実験F — 仮想軸更新 (ii): モデル世代変更の仮想化（Procrustes）',
+    status: '計画中（説明のみ）',
+    purpose:
+      'プロバイダの実モデルは更新できませんが、同一コーパス上に2つの実空間が存在します（例: gemini-embedding-001 vs. Gemini Embedding 2、ada-002 vs. text-embedding-3）。小さなアンカー集合のみを両空間で埋め込み、直交 Procrustes 整列を学習して、残り N 件を再埋め込みせずに写像します — 世代変更が通常強いる rip-and-replace の全再埋め込みを避ける「仮想軸更新」です。',
+    data:
+      '同一コーパス上の2つの埋め込み空間に小さなアンカー集合を埋め込み、残りのコーパスは再埋め込みではなく学習した整列で写像します。',
+    evaluation:
+      '写像ベクトル vs. 新規埋め込みベクトルの品質、必要なアンカー数 k、節約できたコスト。モデル間整列は損失を伴い、同一プロバイダの世代間で最も有効です。部分的成功（「数% を再埋め込みして品質の X% を回復」）でも強い結果です。',
+    outcomes:
+      '小さなアンカーの Procrustes 写像が、どれだけ少ない再埋め込みでどれだけの品質を回復するかを定量化 — rip-and-replace なしでモデル世代変更を吸収できる証拠です。',
   },
   {
     id: 'NEXT',

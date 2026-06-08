@@ -13,19 +13,20 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-type TabId = 'A' | 'B' | 'C' | 'D'
-const tab = ref<TabId>('A')
+type ExpId = 'A' | 'Aprime' | 'B' | 'C' | 'D' | 'E' | 'F'
+const IDS: ExpId[] = ['A', 'Aprime', 'B', 'C', 'D', 'E', 'F']
+const STATUS: Record<ExpId, 'interactive' | 'completed' | 'planned'> = {
+  A: 'interactive', Aprime: 'planned', B: 'planned', C: 'completed', D: 'planned', E: 'planned', F: 'planned',
+}
+const sel = ref<ExpId>('A')
 
-// Deep links like #expA/#expB/#expC/#expD live inside this tabbed section, so the
-// target only exists once its tab is active. Map the hash to a tab, switch to it,
-// then scroll the whole section into view (works even from another tab).
-const TABS: TabId[] = ['A', 'B', 'C', 'D']
+// Deep links like #expA / #expAprime / #expB … select the matching experiment.
 function syncFromHash() {
-  const m = /^#exp([ABCD])$/.exec(window.location.hash)
+  const m = /^#exp([A-Za-z]+)$/.exec(window.location.hash)
   if (!m) return
-  const id = m[1] as TabId
-  if (TABS.includes(id)) {
-    tab.value = id
+  const id = m[1] as ExpId
+  if (IDS.includes(id)) {
+    sel.value = id
     void nextTick(() => {
       document.getElementById('experiments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
@@ -41,16 +42,20 @@ onBeforeUnmount(() => window.removeEventListener('hashchange', syncFromHash))
 const byId = (id: string): ExperimentMeta =>
   props.experiments.find((e) => e.id === id) ?? props.experiments[0]
 const metaA = computed(() => byId('A'))
+const metaAprime = computed(() => byId('Aprime'))
 const metaB = computed(() => byId('B'))
 const metaC = computed(() => byId('C'))
 const metaD = computed(() => byId('D'))
+const metaE = computed(() => byId('E'))
+const metaF = computed(() => byId('F'))
 
-const tabs = computed(() => [
-  { id: 'A' as const, label: t('experiments.tabs.A'), kind: t('experiments.status.interactive') },
-  { id: 'B' as const, label: t('experiments.tabs.B'), kind: t('experiments.status.planned') },
-  { id: 'C' as const, label: t('experiments.tabs.C'), kind: t('experiments.status.completed') },
-  { id: 'D' as const, label: t('experiments.tabs.D'), kind: t('experiments.status.planned') },
-])
+const items = computed(() =>
+  IDS.map((id) => ({
+    value: id,
+    title: t(`experiments.tabs.${id}`),
+    subtitle: t(`experiments.status.${STATUS[id]}`),
+  })),
+)
 </script>
 
 <template>
@@ -58,40 +63,39 @@ const tabs = computed(() => [
     <p class="kicker">{{ t('experiments.kicker') }}</p>
     <h2 class="sec-title text-h5 mb-4">{{ t('experiments.title') }}</h2>
 
-    <v-tabs v-model="tab" class="exp-tabs mb-5" color="primary" density="comfortable" show-arrows>
-      <v-tab v-for="x in tabs" :key="x.id" :value="x.id" class="exp-tab">
-        <span class="lbl">{{ x.label }}</span>
-        <span class="kind">{{ x.kind }}</span>
-      </v-tab>
-    </v-tabs>
+    <v-select
+      v-model="sel"
+      :items="items"
+      item-title="title"
+      item-value="value"
+      :label="t('experiments.choose')"
+      variant="outlined"
+      density="comfortable"
+      hide-details
+      class="exp-select mb-6"
+    >
+      <template #item="{ props: itemProps, item }">
+        <v-list-item v-bind="itemProps" :title="item.raw.title" :subtitle="item.raw.subtitle" />
+      </template>
+    </v-select>
 
-    <v-window v-model="tab">
-      <v-window-item value="A">
-        <CostModelSection :meta="metaA" />
-      </v-window-item>
-      <v-window-item value="B">
-        <PlannedExperiment :meta="metaB" />
-      </v-window-item>
-      <v-window-item value="C">
-        <MaintenanceSection :meta="metaC" :summary="summary" :cost-rows="costRows" />
-      </v-window-item>
-      <v-window-item value="D">
-        <PlannedExperiment :meta="metaD" />
-      </v-window-item>
+    <v-window v-model="sel">
+      <v-window-item value="A"><CostModelSection :meta="metaA" /></v-window-item>
+      <v-window-item value="Aprime"><PlannedExperiment :meta="metaAprime" /></v-window-item>
+      <v-window-item value="B"><PlannedExperiment :meta="metaB" /></v-window-item>
+      <v-window-item value="C"><MaintenanceSection :meta="metaC" :summary="summary" :cost-rows="costRows" /></v-window-item>
+      <v-window-item value="D"><PlannedExperiment :meta="metaD" /></v-window-item>
+      <v-window-item value="E"><PlannedExperiment :meta="metaE" /></v-window-item>
+      <v-window-item value="F"><PlannedExperiment :meta="metaF" /></v-window-item>
     </v-window>
   </section>
 </template>
 
 <style scoped lang="scss">
 .block { padding: clamp(2.2rem,5vw,3.6rem) 0; border-top: 1px solid var(--line); }
-.exp-tabs { border-bottom: 1px solid var(--line); }
-.exp-tab {
-  text-transform: none; letter-spacing: 0; min-height: 56px;
-  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
-  .lbl { font-family: var(--serif); font-weight: 600; font-size: .98rem; line-height: 1.1; }
-  .kind { font-family: var(--mono); font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
-}
-/* The inner experiment sections already have their own top border/padding;
-   neutralize it inside the tab window so the tab strip owns the separation. */
-.exp-tabs + .v-window :deep(.block) { border-top: none; padding-top: 1rem; }
+.exp-select { max-width: 560px; }
+.exp-select :deep(.v-field__input) { font-family: var(--serif); font-weight: 600; }
+/* Inner experiment sections carry their own top border/padding; neutralize it
+   inside the window so the select owns the separation. */
+.v-window :deep(.block) { border-top: none; padding-top: .5rem; }
 </style>
